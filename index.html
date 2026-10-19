@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Credit Risk & Loan Default Early Warning System — Predict, explain, and monitor loan default risk with AI-powered analytics.">
+    <title>Credit Risk & Loan Default Early Warning System</title>
+
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="css/styles.css?v=2">
+
+    <!-- CDN Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+</head>
+<body>
+
+    <!-- Login Overlay Split Screen -->
+    <div id="login-overlay" class="login-overlay" style="display: flex;">
+        <div class="login-split-container">
+            <!-- Left Side Animated Artwork -->
+            <div class="login-visual">
+                <!-- Using the generated ultra-premium abstract finance image -->
+                <div class="login-visual-bg" style="background-image: url('img/abstract_finance_bg.png');"></div>
+                <div class="login-visual-overlay"></div>
+                <div class="login-visual-content">
+                    <h1>Sleek. Secure. Precise.</h1>
+                    <p>The next generation intelligent Risk Default Early Warning System designed for modern institutional finance.</p>
+                </div>
+            </div>
+
+            <!-- Right Side Glassmorphic Form -->
+            <div class="login-form-container">
+                <div class="login-card">
+                    <div class="login-logo">
+                        <span class="logo-icon">🏦</span>
+                        <h2>Risk Dashboard</h2>
+                    </div>
+                    <p class="login-subtitle">Secure Access Portal</p>
+                    
+                    <form id="login-form">
+                        <div class="form-group">
+                            <label for="login-username">Username</label>
+                            <input type="text" id="login-username" placeholder="Enter username (admin)" autocomplete="username">
+                        </div>
+                        <div class="form-group">
+                            <label for="login-password">Password</label>
+                            <input type="password" id="login-password" placeholder="Enter password (admin)" autocomplete="current-password">
+                        </div>
+                        <div id="login-error" class="login-error" style="display:none;"></div>
+                        <button type="submit" class="btn btn-primary btn-block" style="width: 100%; margin-top: 16px;">Sign In</button>
+                    </form>
+                    <div class="login-footer">
+                        <small>Requires authorized clearance level L3</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loading-overlay">
+        <div class="spinner"></div>
+        <div class="loading-text">Initializing system...</div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <!-- Customer Detail Overlay -->
+    <div class="detail-overlay" id="detail-overlay" onclick="if(event.target===this)app.closeDetailPanel()">
+        <div class="detail-panel">
+            <div class="detail-header"></div>
+            <div class="detail-body"></div>
+        </div>
+    </div>
+
+    <!-- App Layout -->
+    <div class="app-layout" style="display: none;">
+
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-logo" title="Credit Risk System">CR</div>
+            <nav class="sidebar-nav">
+                <div class="nav-item active" data-section="dashboard" id="nav-dashboard">
+                    📊
+                    <span class="nav-tooltip">Dashboard</span>
+                </div>
+                <div class="nav-item" data-section="upload" id="nav-upload">
+                    📁
+                    <span class="nav-tooltip">Upload Data</span>
+                </div>
+                <div class="nav-item" data-section="customers" id="nav-customers">
+                    👥
+                    <span class="nav-tooltip">Customers</span>
+                </div>
+                <div class="nav-item" data-section="simulator" id="nav-simulator">
+                    🔬
+                    <span class="nav-tooltip">What-If Simulator</span>
+                </div>
+                <div class="nav-item" data-section="alerts" id="nav-alerts" style="position:relative;">
+                    🔔
+                    <span class="nav-tooltip">Risk Alerts</span>
+                    <span id="alert-badge" style="display:none;position:absolute;top:4px;right:4px;width:18px;height:18px;background:var(--risk-critical);color:#fff;font-size:0.6rem;font-weight:700;border-radius:50%;align-items:center;justify-content:center;">0</span>
+                </div>
+                <div class="nav-item" data-section="reports" id="nav-reports">
+                    📄
+                    <span class="nav-tooltip">Reports</span>
+                </div>
+            </nav>
+            <div class="sidebar-footer" style="margin-top:auto; margin-bottom: 20px;">
+                <div class="nav-item sidebar-logout" id="nav-logout" onclick="Auth.logout()" style="color: var(--risk-critical);">
+                    🚪
+                    <span class="nav-tooltip">Logout</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+
+            <!-- Header -->
+            <header class="header">
+                <div class="header-left">
+                    <div>
+                        <div class="header-title">Credit Risk & Loan Default Early Warning System</div>
+                        <div class="header-subtitle" id="page-title">Dashboard Overview</div>
+                    </div>
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-secondary btn-sm" onclick="document.getElementById('file-input').click()">
+                        📁 Upload CSV
+                    </button>
+                    <button class="btn btn-primary btn-sm" onclick="app.downloadPDFReport()">
+                        📄 Export Report
+                    </button>
+                </div>
+            </header>
+
+            <!-- Page Content -->
+            <div class="page-content">
+
+                <!-- Data Info Bar -->
+                <div class="data-info" id="data-info" style="display:none;">
+                    <div class="data-info-text"></div>
+                    <button class="btn btn-secondary btn-sm" onclick="document.getElementById('file-input').click()">Replace Data</button>
+                </div>
+
+                <!-- Hidden File Input -->
+                <input type="file" id="file-input" class="upload-input" accept=".csv">
+
+                <!-- ==================== DASHBOARD SECTION ==================== -->
+                <section class="page-section active" id="section-dashboard">
+
+                    <!-- Welcome Screen (shown when no data) -->
+                    <div id="welcome-screen" style="display:none;">
+                        <div class="welcome-hero">
+                            <span class="welcome-hero-icon">🏦</span>
+                            <h2>Credit Risk Early Warning System</h2>
+                            <p>Upload your customer loan data to get AI-powered risk predictions, explanations, and actionable recommendations to prevent loan defaults.</p>
+                            <button class="btn btn-primary" onclick="document.getElementById('file-input').click()">
+                                📁 Upload CSV Data
+                            </button>
+                            <button class="btn btn-secondary" style="margin-left:10px;" onclick="app.loadSampleData()">
+                                🎮 Load Demo Data
+                            </button>
+                            <div class="welcome-features">
+                                <div class="welcome-feature">
+                                    <div class="welcome-feature-icon">🤖</div>
+                                    <div class="welcome-feature-title">ML Risk Scoring</div>
+                                    <div class="welcome-feature-desc">Multi-factor weighted model</div>
+                                </div>
+                                <div class="welcome-feature">
+                                    <div class="welcome-feature-icon">🔍</div>
+                                    <div class="welcome-feature-title">Explainable AI</div>
+                                    <div class="welcome-feature-desc">See why each risk was flagged</div>
+                                </div>
+                                <div class="welcome-feature">
+                                    <div class="welcome-feature-icon">📊</div>
+                                    <div class="welcome-feature-title">Live Dashboard</div>
+                                    <div class="welcome-feature-desc">Charts and real-time metrics</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Dashboard Content -->
+                    <div class="dashboard-content">
+                        <!-- KPI Metrics -->
+                        <div class="metrics-grid" id="metrics-grid"></div>
+
+                        <!-- Charts Row -->
+                        <div class="charts-grid">
+                            <div class="card">
+                                <div class="card-header">
+                                    <div class="card-title">Risk Distribution</div>
+                                </div>
+                                <div class="chart-container">
+                                    <canvas id="riskDistributionChart"></canvas>
+                                </div>
+                            </div>
+                            <div class="card">
+                                <div class="card-header">
+                                    <div class="card-title">Score Distribution</div>
+                                </div>
+                                <div class="chart-container">
+                                    <canvas id="scoreDistributionChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Trend + Top Risky -->
+                        <div class="charts-grid">
+                            <div class="card">
+                                <div class="card-header">
+                                    <div class="card-title">Portfolio Risk Trend (6 Months)</div>
+                                </div>
+                                <div class="chart-container">
+                                    <canvas id="portfolioTrendChart"></canvas>
+                                </div>
+                            </div>
+                            <div class="card">
+                                <div class="card-header">
+                                    <div class="card-title">Top 5 Highest Risk Customers</div>
+                                </div>
+                                <div id="top-risky-list" style="padding:8px 0;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ==================== UPLOAD SECTION ==================== -->
+                <section class="page-section" id="section-upload">
+                    <h1 class="section-title">Upload Customer Data</h1>
+                    <p class="section-subtitle">Upload a CSV file containing loan customer data for risk analysis</p>
+
+                    <div class="upload-zone" id="upload-zone">
+                        <div class="upload-icon">📂</div>
+                        <div class="upload-title">Drag & Drop CSV File Here</div>
+                        <div class="upload-subtitle">or click to browse your files</div>
+                        <button class="btn btn-primary">Select CSV File</button>
+                    </div>
+
+                    <div class="card" style="margin-top:24px;">
+                        <div class="card-header">
+                            <div class="card-title">Expected CSV Format</div>
+                        </div>
+                        <div class="table-wrapper">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Column Name</th>
+                                        <th>Type</th>
+                                        <th>Description</th>
+                                        <th>Example</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr><td>customer_id</td><td>String</td><td>Unique customer identifier</td><td>C001</td></tr>
+                                    <tr><td>name</td><td>String</td><td>Customer full name</td><td>Rajesh Kumar</td></tr>
+                                    <tr><td>age</td><td>Number</td><td>Customer age in years</td><td>35</td></tr>
+                                    <tr><td>income</td><td>Number</td><td>Monthly income in ₹</td><td>85000</td></tr>
+                                    <tr><td>loan_amount</td><td>Number</td><td>Total loan amount in ₹</td><td>500000</td></tr>
+                                    <tr><td>emi</td><td>Number</td><td>Monthly EMI amount in ₹</td><td>12500</td></tr>
+                                    <tr><td>credit_score</td><td>Number</td><td>Credit score (300-850)</td><td>750</td></tr>
+                                    <tr><td>missed_payments</td><td>Number</td><td>Number of missed payments</td><td>0</td></tr>
+                                    <tr><td>employment_years</td><td>Number</td><td>Years of employment</td><td>8</td></tr>
+                                    <tr><td>existing_loans</td><td>Number</td><td>Number of existing loans</td><td>1</td></tr>
+                                    <tr><td>loan_tenure_months</td><td>Number</td><td>Loan tenure in months</td><td>48</td></tr>
+                                    <tr><td>collateral_value</td><td>Number</td><td>Collateral value in ₹</td><td>600000</td></tr>
+                                    <tr><td>loan_purpose</td><td>String</td><td>Purpose of the loan</td><td>Home Renovation</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ==================== CUSTOMERS SECTION ==================== -->
+                <section class="page-section" id="section-customers">
+                    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+                        <div>
+                            <h1 class="section-title">Customer Analysis</h1>
+                            <p class="section-subtitle" style="margin-bottom:0;" id="customer-count">0 customers</p>
+                        </div>
+                        <div style="display:flex;gap:10px;align-items:center;">
+                            <input type="text" id="customer-search" class="sim-customer-select"
+                                   placeholder="🔍 Search customers..." style="width:250px;">
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="table-wrapper">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Customer</th>
+                                        <th>Income</th>
+                                        <th>Loan Amount</th>
+                                        <th>EMI</th>
+                                        <th>Credit Score</th>
+                                        <th>Missed PMTs</th>
+                                        <th>Risk Score</th>
+                                        <th>Risk Level</th>
+                                        <th>Risk Bar</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="customers-tbody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ==================== SIMULATOR SECTION ==================== -->
+                <section class="page-section" id="section-simulator">
+                    <h1 class="section-title">What-If Risk Simulator</h1>
+                    <p class="section-subtitle">Modify customer parameters to see how they affect the risk score</p>
+
+                    <div class="card" style="margin-bottom:20px;padding:16px 20px;">
+                        <label style="font-size:0.85rem;font-weight:500;color:var(--text-secondary);margin-right:12px;">Select Customer:</label>
+                        <select id="sim-customer-select" class="sim-customer-select" style="width:400px;display:inline-block;"></select>
+                    </div>
+
+                    <div class="simulator-grid">
+                        <div class="card">
+                            <div class="card-header">
+                                <div class="card-title">Adjust Parameters</div>
+                            </div>
+                            <div class="sim-controls">
+                                <div class="sim-field">
+                                    <label>Monthly Income (₹)</label>
+                                    <input type="range" id="sim-income" min="10000" max="300000" value="50000" step="5000">
+                                    <div class="sim-range-labels">
+                                        <span>₹10K</span>
+                                        <span id="sim-income-value">₹50,000</span>
+                                        <span>₹3L</span>
+                                    </div>
+                                </div>
+                                <div class="sim-field">
+                                    <label>Monthly EMI (₹)</label>
+                                    <input type="range" id="sim-emi" min="1000" max="100000" value="10000" step="1000">
+                                    <div class="sim-range-labels">
+                                        <span>₹1K</span>
+                                        <span id="sim-emi-value">₹10,000</span>
+                                        <span>₹1L</span>
+                                    </div>
+                                </div>
+                                <div class="sim-field">
+                                    <label>Credit Score</label>
+                                    <input type="range" id="sim-credit-score" min="300" max="850" value="700" step="10">
+                                    <div class="sim-range-labels">
+                                        <span>300</span>
+                                        <span id="sim-credit-score-value">700</span>
+                                        <span>850</span>
+                                    </div>
+                                </div>
+                                <div class="sim-field">
+                                    <label>Missed Payments</label>
+                                    <input type="range" id="sim-missed-payments" min="0" max="12" value="0" step="1">
+                                    <div class="sim-range-labels">
+                                        <span>0</span>
+                                        <span id="sim-missed-payments-value">0</span>
+                                        <span>12</span>
+                                    </div>
+                                </div>
+                                <div class="sim-field">
+                                    <label>Employment Years</label>
+                                    <input type="range" id="sim-employment" min="0" max="30" value="5" step="1">
+                                    <div class="sim-range-labels">
+                                        <span>0</span>
+                                        <span id="sim-employment-value">5</span>
+                                        <span>30</span>
+                                    </div>
+                                </div>
+                                <div class="sim-field">
+                                    <label>Existing Loans</label>
+                                    <input type="range" id="sim-existing-loans" min="0" max="8" value="1" step="1">
+                                    <div class="sim-range-labels">
+                                        <span>0</span>
+                                        <span id="sim-existing-loans-value">1</span>
+                                        <span>8</span>
+                                    </div>
+                                </div>
+                                <button class="btn btn-primary" id="sim-run-btn" style="margin-top:8px;">
+                                    🔬 Run Simulation
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-header">
+                                <div class="card-title">Simulation Result</div>
+                            </div>
+                            <div id="sim-result" class="sim-result">
+                                <div class="empty-state" style="padding:40px 20px;">
+                                    <div class="empty-state-icon">🔬</div>
+                                    <div class="empty-state-title">Select a customer or adjust parameters</div>
+                                    <div class="empty-state-desc">Then click "Run Simulation" to see the predicted risk score.</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ==================== ALERTS SECTION ==================== -->
+                <section class="page-section" id="section-alerts">
+                    <h1 class="section-title">Risk Alerts & Warnings</h1>
+                    <p class="section-subtitle">Customers flagged for high or critical risk levels requiring attention</p>
+                    <div id="alerts-container">
+                        <div class="empty-state">
+                            <div class="empty-state-icon">🔔</div>
+                            <div class="empty-state-title">No alerts yet</div>
+                            <div class="empty-state-desc">Upload customer data to generate risk alerts.</div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ==================== REPORTS SECTION ==================== -->
+                <section class="page-section" id="section-reports">
+                    <h1 class="section-title">Report Generator</h1>
+                    <p class="section-subtitle">Download comprehensive risk analysis reports</p>
+
+                    <div class="download-options">
+                        <div class="card download-card" onclick="app.downloadPDFReport()">
+                            <div class="download-icon">📄</div>
+                            <div class="download-title">PDF Risk Report</div>
+                            <div class="download-desc">Full report with risk scores, distributions, explanations, and recommendations for all customers.</div>
+                            <button class="btn btn-primary" style="margin-top:16px;">Download PDF</button>
+                        </div>
+                        <div class="card download-card" onclick="app.downloadCSVReport()">
+                            <div class="download-icon">📊</div>
+                            <div class="download-title">CSV Data Export</div>
+                            <div class="download-desc">Export risk scores and levels for all customers in CSV format for further analysis.</div>
+                            <button class="btn btn-secondary" style="margin-top:16px;">Download CSV</button>
+                        </div>
+                    </div>
+                </section>
+
+            </div><!-- /page-content -->
+        </main>
+    </div><!-- /app-layout -->
+
+    <!-- Application Scripts (order matters) -->
+    <script src="js/auth.js"></script>
+    <script src="js/ml-engine.js"></script>
+    <script src="js/dashboard.js"></script>
+    <script src="js/report.js"></script>
+    <script src="js/app.js"></script>
+
+</body>
+</html>

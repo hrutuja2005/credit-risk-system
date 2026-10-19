@@ -1,0 +1,26 @@
+customer_id,name,age,income,loan_amount,emi,credit_score,missed_payments,employment_years,existing_loans,loan_tenure_months,collateral_value,loan_purpose
+C001,Rajesh Kumar,35,85000,500000,12500,750,0,8,1,48,600000,Home Renovation
+C002,Priya Sharma,28,45000,300000,9500,680,2,3,2,36,200000,Personal Loan
+C003,Amit Patel,42,120000,800000,18000,790,0,15,1,60,1000000,Business Expansion
+C004,Sneha Reddy,31,38000,250000,8500,620,4,2,3,30,150000,Education
+C005,Vikram Singh,50,95000,600000,15000,710,1,20,2,48,500000,Home Purchase
+C006,Kavitha Nair,26,32000,200000,7800,580,6,1,4,24,100000,Personal Loan
+C007,Rahul Gupta,38,72000,450000,11000,720,0,10,1,48,550000,Vehicle Purchase
+C008,Deepika Joshi,33,55000,350000,10500,650,3,5,2,36,250000,Medical Emergency
+C009,Suresh Menon,45,150000,1200000,28000,810,0,18,1,60,1500000,Business Expansion
+C010,Ananya Das,29,40000,280000,9000,600,5,2,3,36,120000,Education
+C011,Mohammed Ali,36,68000,400000,10000,700,1,7,2,48,450000,Home Renovation
+C012,Lakshmi Iyer,40,52000,320000,9800,630,4,6,3,36,180000,Personal Loan
+C013,Arjun Mehra,27,35000,220000,7500,560,7,1,4,30,80000,Personal Loan
+C014,Pooja Verma,34,90000,550000,13500,760,0,9,1,48,650000,Home Purchase
+C015,Karthik Rajan,48,110000,700000,16000,740,1,16,2,48,800000,Business Expansion
+C016,Nisha Tiwari,30,42000,260000,8800,610,5,3,3,30,140000,Education
+C017,Sanjay Rao,55,75000,480000,12000,690,2,22,2,48,400000,Vehicle Purchase
+C018,Divya Pillai,25,28000,180000,6800,540,8,1,5,24,60000,Personal Loan
+C019,Manish Khanna,39,105000,650000,15500,770,0,12,1,48,750000,Home Purchase
+C020,Ritu Agarwal,32,48000,310000,9200,640,3,4,2,36,200000,Medical Emergency
+C021,Arun Saxena,44,88000,520000,13000,730,1,14,1,48,600000,Business Expansion
+C022,Meera Krishnan,37,60000,380000,10200,660,3,6,2,36,280000,Home Renovation
+C023,Tarun Bhat,29,33000,210000,7200,550,9,2,5,30,70000,Personal Loan
+C024,Swati Deshmukh,41,98000,580000,14000,745,0,13,1,48,680000,Home Purchase
+C025,Nikhil Jain,35,70000,420000,10800,695,2,8,2,48,380000,Vehicle Purchase
